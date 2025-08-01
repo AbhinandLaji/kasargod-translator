@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Kasargod Slang Translator</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Manjari:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: #f0f7f4;
+    }
+    .malayalam {
+      font-family: 'Manjari', sans-serif;
+    }
+    .kasargod-gradient {
+      background: linear-gradient(to right, #10b981, #059669);
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .fade-in {
+      animation: fadeIn 0.5s ease-out forwards;
+    }
+    #alertBox {
+      transition: opacity 0.3s, transform 0.3s;
+    }
+  </style>
+</head>
+<body class="flex items-center justify-center min-h-screen p-4 bg-gray-100">
+
+  <div class="w-full max-w-lg mx-auto">
+    <header class="kasargod-gradient text-white p-6 rounded-t-xl shadow-lg text-center">
+      <h1 class="text-3xl font-bold malayalam">കാസർഗോഡ് സ്ലാങ് ട്രാൻസ്ലേറ്റർ</h1>
+      <p class="mt-2 text-lg">Kasargod Slang Translator</p>
+    </header>
+
+    <main class="bg-white p-6 rounded-b-xl shadow-lg">
+      <div>
+        <label for="inputText" class="block text-lg font-medium text-gray-700 malayalam">ഒരു വാചകം ടൈപ്പ് ചെയ്യുക</label>
+        <textarea id="inputText" rows="4" class="mt-2 w-full p-3 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-green-500 focus:border-green-500 transition malayalam" placeholder="ഇവിടെ സാധാരണ മലയാളത്തിൽ ടൈപ്പ് ചെയ്യുക... ഉദാ: നീ എവിടെ പോകുന്നു"></textarea>
+      </div>
+
+      <div class="mt-6 text-center">
+        <button id="translateBtn" class="kasargod-gradient text-white font-bold py-3 px-8 rounded-lg shadow-md hover:shadow-xl transform hover:-translate-y-1 transition-all duration-300">
+          <span class="malayalam text-xl">മാറ്റിക്കോ!</span> (Translate!)
+        </button>
+      </div>
+
+      <div id="resultContainer" class="mt-8 hidden">
+        <div class="flex justify-between items-center">
+          <h2 class="text-xl font-semibold text-gray-800 malayalam">കാസർഗോഡ് സ്റ്റൈൽ:</h2>
+          <button id="speakBtn" class="p-2 rounded-full hover:bg-green-100 transition-colors" title="Read aloud">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.88 14.12A2 2 0 014.12 12a2 2 0 011.76-1.88M12 12v.01M12 6l-3.5 3.5a2 2 0 000 2.83L12 16" />
+            </svg>
+          </button>
+        </div>
+        <div id="resultText" class="mt-2 p-4 bg-green-50 border-l-4 border-green-500 rounded-r-lg shadow-inner">
+          <p class="text-lg text-gray-900 malayalam"></p>
+        </div>
+      </div>
+      
+      <div id="noSlangMessage" class="mt-6 text-center text-gray-500 hidden malayalam">
+        ഈ വാക്കുകളിലൊന്നും കാസർഗോഡ് ടച്ചില്ലല്ലോ!
+      </div>
+    </main>
+    
+    <footer class="text-center mt-6 text-sm text-gray-500">
+      <p>Made with ❤ in Kasargod</p>
+    </footer>
+  </div>
+
+  <!-- Custom Alert Box for Errors -->
+  <div id="alertBox" class="fixed top-5 right-5 bg-red-500 text-white p-4 rounded-lg shadow-lg opacity-0 transform -translate-y-10 max-w-sm hidden">
+    <p id="alertMessage" class="text-sm mt-1"></p>
+  </div>
+
+  <script>
+    const kasargodSlangDictionary = {
+      "നീ": "ഇജ്ജ്", "നിങ്ങൾ": "ഇങ്ങള്", "ഞാൻ": "ഞാന്", "എന്താണ്": "എന്തപ്പ", "എന്താ": "എന്തപ്പ",
+      "എവിടെ": "ഏടെ", "അവിടെ": "അങ്ങ്", "ഇവിടെ": "ഇങ്ങ്", "വരുന്നു": "ബരുന്നു", "വരാം": "ബരാം",
+      "വന്നു": "ബന്ന്", "പോകുന്നു": "പോണ്", "പോയി": "പോയിന്", "പോകാം": "പോവാം", "ചെയ്യുന്നു": "ആക്കുന്ന്",
+      "കഴിച്ചു": "തിന്നു", "കഴിക്കാം": "തിന്നാം", "ചേട്ടൻ": "കാക്ക", "ചേട്ടാ": "കാക്കാ", "ചേച്ചി": "ഇത്താത്ത",
+      "സുഹൃത്ത്": "ചങ്ങായി", "ചങ്ങാതി": "ബെസ്റ്റ്", "പൈസ": "കാസ്", "നന്നായിട്ടുണ്ട്": "ബല്ലാത്ത", "കൊള്ളാം": "ഉഷാർ",
+      "ആണ്": "അത്രെ", "അല്ലേ": "അല്ലേപ്പാ", "ഇല്ല": "ഇല്ലെ", "ഉണ്ട്": "ഉണ്ടപ്പാ", "അവൻ": "ഓൻ",
+      "അവൾ": "ഓള്", "അവർ": "ഓല്", "പറഞ്ഞു": "ചൊന്നം", "എന്തിനാണ്": "എന്തിനാപ്പാ", "വിളിച്ചു": "വിളിച്ച്",
+      "എങ്ങനെ": "എങ്ങനെപ്പാ", "വേഗം": "ബേം", "ഇഷ്ടപ്പെട്ടു": "ഇഷ്ടായി", "എടുക്ക്": "എട്ക്ക്",
+      "കൊണ്ടുവാ": "കൊണ്ടാ", "അമ്മ": "ഉമ്മ", "അച്ഛൻ": "ബാപ്പ", "മനസ്സിലായില്ല": "കത്തിയില്ല",
+      "മനസ്സിലായോ": "കത്തിയോ", "സത്യമാണോ": "നേരാണോ", "വെറുതെ": "ചുമ്മാ"
+    };
+
+    const inputText = document.getElementById('inputText');
+    const translateBtn = document.getElementById('translateBtn');
+    const resultContainer = document.getElementById('resultContainer');
+    const resultText = document.getElementById('resultText').querySelector('p');
+    const noSlangMessage = document.getElementById('noSlangMessage');
+    const speakBtn = document.getElementById('speakBtn');
+    const alertBox = document.getElementById('alertBox');
+    const alertMessage = document.getElementById('alertMessage');
+
+    translateBtn.addEventListener('click', () => {
+      const originalText = inputText.value.trim();
+      if (!originalText) return;
+
+      resultContainer.classList.add('hidden');
+      noSlangMessage.classList.add('hidden');
+
+      const words = originalText.split(/(\s+)/);
+      let slangFound = false;
+
+      const translatedWords = words.map(word => {
+        const punctuation = word.match(/[.,?!;:]*$/)[0] || '';
+        const cleanWord = word.replace(/[.,?!;:]*$/, '');
+        if (kasargodSlangDictionary[cleanWord]) {
+          slangFound = true;
+          return kasargodSlangDictionary[cleanWord] + punctuation;
+        }
+        return word;
+      });
+
+      const translatedSentence = translatedWords.join('');
+      if (slangFound) {
+        resultText.textContent = translatedSentence;
+        resultContainer.classList.remove('hidden');
+        resultContainer.classList.add('fade-in');
+
+        // 🔊 Auto play TTS
+        const encodedText = encodeURIComponent(translatedSentence);
+        const ttsUrl = `https://translate.google.com/translate_tts?ie=UTF-8&q=${encodedText}&tl=ml&client=tw-ob`;
+
+        const audio = new Audio(ttsUrl);
+        speakBtn.disabled = true;
+        audio.play()
+          .then(() => {
+            audio.onended = () => {
+              speakBtn.disabled = false;
+            };
+          })
+          .catch(error => {
+            console.error("Error playing audio:", error);
+            speakBtn.disabled = false;
+            showAlert("Could not play audio. Please check your internet connection.");
+          });
+
+      } else {
+        noSlangMessage.classList.remove('hidden');
+        noSlangMessage.classList.add('fade-in');
+      }
+    });
+
+    speakBtn.addEventListener('click', () => {
+      const textToSpeak = resultText.textContent;
+      if (!textToSpeak) return;
+
+      const encodedText = encodeURIComponent(textToSpeak);
+      const ttsUrl = `https://translate.google.com/translate_tts?ie=UTF-8&q=${encodedText}&tl=ml&client=tw-ob`;
+
+      const audio = new Audio(ttsUrl);
+      speakBtn.disabled = true;
+      audio.play()
+        .then(() => {
+          audio.onended = () => {
+            speakBtn.disabled = false;
+          };
+        })
+        .catch(error => {
+          console.error("Error playing audio:", error);
+          speakBtn.disabled = false;
+          showAlert("Could not play audio. Please check your internet connection.");
+        });
+    });
+
+    function showAlert(message) {
+      alertMessage.textContent = message;
+      alertBox.classList.remove('hidden');
+      setTimeout(() => {
+        alertBox.classList.remove('opacity-0', '-translate-y-10');
+      }, 10);
+      setTimeout(() => {
+        alertBox.classList.add('opacity-0', '-translate-y-10');
+        setTimeout(() => alertBox.classList.add('hidden'), 300);
+      }, 5000);
+    }
+  </script>
+</body>
+</html>
