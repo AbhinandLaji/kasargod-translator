@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Kasargod Slang Translator</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Manjari:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="manifest" href="manifest.json">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="bg-black flex items-center justify-center min-h-screen p-4 overflow-hidden">
+
+    <div id="floating-letters-bg" class="absolute top-0 left-0 w-full h-full z-0"></div>
+
+    <div class="relative z-10 w-full max-w-4xl mx-auto bg-white rounded-2xl shadow-2xl flex overflow-hidden">
+        <div class="w-1/3 bg-[#1E392A] p-8 hidden md:flex flex-col items-center justify-center">
+            <svg class="w-24 h-24 text-white" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22C17.5228 22 22 17.5228 22 12C22 9.22062 20.8653 6.71398 19 4.99988M19 5C17.1347 3.28602 14.7794 2.22062 12 2L12.0001 12C12.0001 12 14.5 12 17 12C19.5 12 22 9.5 22 7C22 6.5 21 5 19 5Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+        </div>
+
+        <div class="w-full md:w-2/3 p-8">
+            <header>
+                <h1 class="text-2xl font-bold text-gray-800">Kasargod Slang Translator</h1>
+            </header>
+
+            <main class="mt-6">
+                <div>
+                    <label for="inputText" class="block text-sm font-medium text-gray-700 malayalam">Standard Malayalam</label>
+                    <div class="mt-1 bg-slate-50 rounded-lg border border-slate-200">
+                        <textarea id="inputText" rows="4" class="w-full p-4 bg-transparent focus:outline-none malayalam" placeholder="ഇവിടെ സാധാരണ മലയാളത്തിൽ ടൈപ്പ് ചെയ്യുക..."></textarea>
+                    </div>
+                </div>
+
+                <div class="mt-4 text-center">
+                    <button id="translateBtn" class="bg-[#10b981] hover:bg-[#059669] text-white font-bold py-3 px-8 rounded-lg shadow-md hover:shadow-lg transform hover:-translate-y-1 transition-all duration-300 w-full">
+                        <span class="malayalam text-xl">Translate</span>
+                    </button>
+                </div>
+
+                <div id="resultContainer" class="mt-6 hidden">
+                    <label class="block text-sm font-medium text-gray-700">Output</label>
+                    <div class="mt-1 p-4 bg-slate-50 rounded-lg border border-slate-200">
+                        <p id="resultText" class="text-lg text-gray-900 malayalam"></p>
+                        <div id="highlightTag" class="inline-block bg-emerald-200 text-emerald-800 text-xs font-bold mt-2 px-2 py-1 rounded-full">#KASARAGODAN</div>
+                        
+                        <div class="flex justify-between items-center mt-4">
+                            <button id="speakBtn" class="flex items-center space-x-2 text-gray-500 hover:text-gray-900 transition-colors" title="Read aloud">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fill-rule="evenodd" d="M9.383 3.076A1 1 0 0110 4v12a1 1 0 01-1.707.707L4.586 13H2a1 1 0 01-1-1V8a1 1 0 011-1h2.586l3.707-3.707a1 1 0 011.09-.217zM14.657 2.929a1 1 0 011.414 0A9 9 0 0119 12a9 9 0 01-2.929 9.071 1 1 0 01-1.414-1.414A7 7 0 0017 12a7 7 0 00-2.343-5.657 1 1 0 010-1.414zm-2.829 2.828a1 1 0 011.415 0A5 5 0 0115 12a5 5 0 01-1.757 3.939 1 1 0 11-1.415-1.414A3 3 0 0013 12a3 3 0 00-1.05-2.293 1 1 0 010-1.414z" clip-rule="evenodd" />
+                                </svg>
+                                <span>Speak</span>
+                           
+                        </div>
+                    </div>
+                </div>
+
+                <div id="noSlangMessage" class="mt-6 text-center text-gray-500 hidden malayalam p-4 bg-slate-50 rounded-lg">
+                    ഈ വാക്കുകളിലൊന്നും കാസർഗോഡ് ടച്ചില്ലല്ലോ!
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <div id="alertBox" class="fixed top-5 right-5 bg-red-500 text-white p-4 rounded-lg shadow-lg max-w-sm hidden">
+        <p id="alertMessage" class="text-sm mt-1"></p>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const bgContainer = document.getElementById('floating-letters-bg');
+            const letters = ['ക', 'ഖ', 'ഗ', 'ഘ', 'ങ', 'ച', 'ഛ', 'ജ', 'ഝ', 'ഞ', 'ട', 'ഠ', 'ഡ', 'ഢ', 'ണ', 'ത', 'ഥ', 'ദ', 'ധ', 'ന', 'പ', 'ഫ', 'ബ', 'ഭ', 'മ', 'യ', 'ര', 'ല', 'വ', 'ശ', 'ഷ', 'സ', 'ഹ', 'ള', 'ഴ', 'റ'];
+            const numberOfLetters = 50;
+
+            for (let i = 0; i < numberOfLetters; i++) {
+                const letter = document.createElement('span');
+                letter.classList.add('floating-letter');
+                letter.textContent = letters[Math.floor(Math.random() * letters.length)];
+                
+                // Random initial position, size, and animation duration
+                letter.style.top = `${Math.random() * 100}vh`;
+                letter.style.left = `${Math.random() * 100}vw`;
+                letter.style.fontSize = `${Math.random() * 1.5 + 0.5}em`; // Between 0.5em and 2em
+                letter.style.setProperty('--duration', `${Math.random() * 20 + 15}s`); // Between 15s and 35s
+
+                bgContainer.appendChild(letter);
+            }
+        });
+    </script>
+    
+    <script src="script.js"></script>
+</body>
+</html>
